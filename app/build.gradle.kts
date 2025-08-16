@@ -1,7 +1,12 @@
 plugins {
+
+// ou o mais recente compatível
+    id("org.jetbrains.kotlin.android") version "2.0.20"
+    id("org.jetbrains.kotlin.plugin.compose" )version "2.0.0" // se usar Compose
     alias(libs.plugins.androidApplication)
-    alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.ksp)
+    kotlin("kapt")
+    id("com.google.dagger.hilt.android")
     alias(libs.plugins.googleServices)
 }
 
@@ -45,6 +50,9 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
     implementation(libs.constraintlayout)
     implementation(libs.firebase.auth)
     implementation(platform(libs.firebase.bom))
