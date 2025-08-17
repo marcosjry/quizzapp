@@ -1,9 +1,7 @@
 package com.marcos.quizapplication.domain.contracts
 
-data class User(
-    val uid: String,
-    val email: String?
-)
+import com.marcos.quizapplication.domain.model.User
+
 
 data class AuthState(
     val user: User? = null,

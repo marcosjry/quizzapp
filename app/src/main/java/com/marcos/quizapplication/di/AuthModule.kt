@@ -1,6 +1,7 @@
 package com.marcos.quizapplication.di
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.marcos.quizapplication.authentication.FirebaseAuthRepositoryImpl
 import com.marcos.quizapplication.domain.contracts.AuthRepository
 import dagger.Module
@@ -19,7 +20,14 @@ object AuthModule {
 
     @Provides
     @Singleton
-    fun provideAuthRepository(firebaseAuth: FirebaseAuth): AuthRepository {
-        return FirebaseAuthRepositoryImpl(firebaseAuth)
+    fun provideFirebaseFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
+
+    @Provides
+    @Singleton
+    fun provideAuthRepository(
+        firebaseAuth: FirebaseAuth,
+        firestore: FirebaseFirestore
+    ): AuthRepository {
+        return FirebaseAuthRepositoryImpl(firebaseAuth, firestore)
     }
 }

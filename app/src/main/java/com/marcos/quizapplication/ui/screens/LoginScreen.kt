@@ -12,10 +12,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,11 +35,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -44,12 +50,13 @@ import com.marcos.quizapplication.ui.viewmodel.LoginUiState
 fun LoginScreen(
     uiState: LoginUiState,
     onSignInClick: (String, String) -> Unit,
+    onSignUpClick: () -> Unit,
     onErrorMessageShown: () -> Unit,
     onLoginSuccess: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var rememberMe by remember { mutableStateOf(false) }
+    var passwordVisible by remember { mutableStateOf(false) } // Estado para visibilidade da senha
 
     val context = LocalContext.current
 
@@ -83,7 +90,7 @@ fun LoginScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Sign in to continue to your account",
+                text = "Sign in or create an account",
                 fontSize = 16.sp,
                 color = Color.Gray,
                 textAlign = TextAlign.Start,
@@ -108,31 +115,44 @@ fun LoginScreen(
                 label = { Text("Password") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                enabled = !uiState.isLoading
+                enabled = !uiState.isLoading,
+                trailingIcon = {
+                    val image = if (passwordVisible)
+                        Icons.Filled.Visibility
+                    else
+                        Icons.Filled.VisibilityOff
+
+                    val description = if (passwordVisible) "Hide password" else "Show password"
+
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(imageVector = image, description)
+                    }
+                }
             )
             Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-
-            }
-            Spacer(modifier = Modifier.height(24.dp))
-
             Button(
                 onClick = { onSignInClick(email, password) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
-                enabled = !uiState.isLoading
+                enabled = !uiState.isLoading && email.isNotBlank() && password.isNotBlank()
             ) {
                 Text("Sign in", fontSize = 16.sp)
             }
             Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedButton(
+                onClick = onSignUpClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                enabled = !uiState.isLoading,
+                colors = ButtonDefaults.outlinedButtonColors()
+            ) {
+                Text("Sign up", fontSize = 16.sp)
+            }
         }
 
         if (uiState.isLoading) {
@@ -147,6 +167,7 @@ fun LoginScreenPreview() {
     LoginScreen(
         uiState = LoginUiState(isLoading = false),
         onSignInClick = { _, _ -> },
+        onSignUpClick = {},
         onErrorMessageShown = {},
         onLoginSuccess = {}
     )
