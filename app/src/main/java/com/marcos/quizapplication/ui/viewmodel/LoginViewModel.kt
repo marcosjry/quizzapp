@@ -13,12 +13,13 @@ import javax.inject.Inject
 data class LoginUiState(
     val isLoading: Boolean = false,
     val loginSuccess: Boolean = false,
+    val registrationSuccess: Boolean = false,
     val errorMessage: String? = null
 )
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-     private val authRepository: AuthRepository
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -26,14 +27,22 @@ class LoginViewModel @Inject constructor(
 
     fun signIn(email: String, password: String) {
         viewModelScope.launch {
-
-            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-
+            _uiState.update { it.copy(isLoading = true, errorMessage = null, loginSuccess = false, registrationSuccess = false) }
             val result = authRepository.signIn(email, password)
-
             result.onSuccess {
                 _uiState.update { it.copy(isLoading = false, loginSuccess = true) }
+            }.onFailure { exception ->
+                _uiState.update { it.copy(isLoading = false, errorMessage = exception.message) }
+            }
+        }
+    }
 
+    fun signUp(username: String, email: String, password: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, errorMessage = null, loginSuccess = false, registrationSuccess = false) }
+            val result = authRepository.signUp(username, email, password)
+            result.onSuccess {
+                _uiState.update { it.copy(isLoading = false, registrationSuccess = true) }
             }.onFailure { exception ->
                 _uiState.update { it.copy(isLoading = false, errorMessage = exception.message) }
             }
@@ -42,5 +51,9 @@ class LoginViewModel @Inject constructor(
 
     fun onErrorMessageShown() {
         _uiState.update { it.copy(errorMessage = null) }
+    }
+
+    fun onRegistrationSuccessShown() {
+        _uiState.update { it.copy(registrationSuccess = false) }
     }
 }

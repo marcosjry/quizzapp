@@ -17,13 +17,19 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +38,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -75,14 +85,68 @@ fun HomeScreen(
     userName: String,
     onLogout: () -> Unit,
     onStartQuizClick: (quizId: String) -> Unit
+    // Adicionar callbacks para Profile e Settings se for implementá-los agora
+    // onProfileClick: () -> Unit,
+    // onSettingsClick: () -> Unit
 ) {
+    var showMenu by remember { mutableStateOf(false) } // Estado para controlar a visibilidade do menu
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("QuizMaster", fontWeight = FontWeight.Bold) },
                 actions = {
-                    IconButton(onClick = onLogout) {
+                    IconButton(onClick = { showMenu = !showMenu }) { // Alterna a visibilidade do menu
                         Icon(Icons.Default.Menu, contentDescription = "Menu")
+                    }
+
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false } // Fecha o menu se clicar fora
+                    ) {
+                        // Exemplo de item de Perfil (Profile)
+                        DropdownMenuItem(
+                            text = { Text("Profile") },
+                            onClick = {
+                                // onProfileClick()
+                                showMenu = false
+                                // TODO: Implementar navegação para tela de perfil ou ação
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Default.Person,
+                                    contentDescription = "Profile"
+                                )
+                            }
+                        )
+
+                        DropdownMenuItem(
+                            text = { Text("Settings") },
+                            onClick = {
+                                showMenu = false
+                                // TODO: Implementar navegação para tela de configurações ou ação
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Default.Settings,
+                                    contentDescription = "Settings"
+                                )
+                            }
+                        )
+                        HorizontalDivider()
+                        DropdownMenuItem(
+                            text = { Text("Logout") },
+                            onClick = {
+                                showMenu = false // Fecha o menu
+                                onLogout()     // Chama a função de logout existente
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Default.ExitToApp,
+                                    contentDescription = "Logout"
+                                )
+                            }
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -244,8 +308,11 @@ fun QuizCard(
 fun HomeScreenPreview() {
     MaterialTheme {
         HomeScreen(
-            userName = "John Doe", onLogout = {},
+            userName = "John Doe",
+            onLogout = {},
             onStartQuizClick = {}
+            // onProfileClick = {},
+            // onSettingsClick = {}
         )
     }
 }

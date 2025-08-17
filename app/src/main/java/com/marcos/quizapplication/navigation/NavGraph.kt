@@ -10,9 +10,11 @@ import androidx.navigation.compose.composable
 import com.marcos.quizapplication.ui.screens.HomeScreen
 import com.marcos.quizapplication.ui.screens.LoginScreen
 import com.marcos.quizapplication.ui.screens.QuizRoute
+import com.marcos.quizapplication.ui.screens.RegistrationScreen
 import com.marcos.quizapplication.ui.viewmodel.HomeViewModel
 import com.marcos.quizapplication.ui.viewmodel.LoginViewModel
 import com.marcos.quizapplication.ui.viewmodel.QuizViewModel
+import com.marcos.quizapplication.ui.viewmodel.RegistrationViewModel
 
 sealed class Screen(val route: String) {
     object Login : Screen("login_screen")
@@ -20,6 +22,7 @@ sealed class Screen(val route: String) {
     object Quiz : Screen("quiz_screen/{quizId}") {
         fun createRoute(quizId: String) = "quiz_screen/$quizId"
     }
+    object Registration : Screen("registration_screen")
 }
 
 @Composable
@@ -35,12 +38,45 @@ fun NavGraph(navController: NavHostController, startDestination: String) {
             LoginScreen(
                 uiState = uiState,
                 onSignInClick = loginViewModel::signIn,
+                onSignUpClick = {
+                    navController.navigate(Screen.Registration.route)
+                },
                 onErrorMessageShown = loginViewModel::onErrorMessageShown,
                 onLoginSuccess = {
                     navController.navigate(Screen.Home.route) {
-                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                        popUpTo(navController.graph.startDestinationId) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
                     }
+
                 }
+            )
+        }
+
+        composable(route = Screen.Registration.route) {
+            val registrationViewModel: RegistrationViewModel = hiltViewModel()
+            val uiState by registrationViewModel.uiState.collectAsStateWithLifecycle()
+
+            RegistrationScreen(
+                uiState = uiState,
+
+                onRegisterClick = { username, email, password, confirmPassword ->
+                    registrationViewModel.signUp(username, email, password, confirmPassword)
+                },
+                onRegistrationSuccess = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Registration.route) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                    registrationViewModel.onRegistrationHandled()
+                },
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onErrorMessageShown = registrationViewModel::onErrorMessageShown
             )
         }
 
@@ -53,7 +89,10 @@ fun NavGraph(navController: NavHostController, startDestination: String) {
                 onLogout = {
                     homeViewModel.onLogout()
                     navController.navigate(Screen.Login.route) {
-                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                        popUpTo(Screen.Home.route) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
                     }
                 },
                 onStartQuizClick = { quizId ->
@@ -69,7 +108,10 @@ fun NavGraph(navController: NavHostController, startDestination: String) {
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateHome = {
                     navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.Home.route) { inclusive = true }
+                        popUpTo(Screen.Quiz.route) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
                     }
                 }
             )
