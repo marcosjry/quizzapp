@@ -173,26 +173,35 @@ fun PerformanceDetailCard(
     }
 }
 
-private val sampleQuestions = listOf(
-    Question("What is 2 + 2?", listOf("3", "4", "5", "6"), "4"),
-    Question("What is 5 x 7?", listOf("30", "35", "40", "45"), "35"),
-    Question("What is the capital of France?", listOf("London", "Berlin", "Paris", "Madrid"), "Paris"),
-    Question("What is 10 / 2?", listOf("3", "4", "5", "6"), "5"),
-    Question("What is the square root of 81?", listOf("7", "8", "9", "10"), "9")
-)
 
 @Preview(showBackground = true)
 @Composable
 fun QuizResultsScreenPreview() {
+    // Crie dados de exemplo aqui, usando o construtor correto de com.marcos.quizapplication.model.Question
+    val previewSampleQuestions = listOf(
+        Question(id = "q1", text = "What is 2 + 2?", options = listOf("3", "4", "5", "6"), correctAnswer = "4"),
+        Question(id = "q2", text = "What is 5 x 7?", options = listOf("30", "35", "40", "45"), correctAnswer = "35"),
+        Question(id = "q3", text = "Capital of France?", options = listOf("London", "Paris"), correctAnswer = "Paris")
+        // ... mais perguntas de exemplo
+    )
+    val previewUserAnswers = mapOf(0 to "4", 1 to "30", 2 to "London") // Exemplo de respostas
+    val totalQuestions = previewSampleQuestions.size
+    val correctAnswers = previewUserAnswers.count { (index, answer) ->
+        previewSampleQuestions.getOrNull(index)?.correctAnswer == answer
+    }
+    val previewScore = if (totalQuestions > 0) (correctAnswers * 100) / totalQuestions else 0
+
     MaterialTheme {
         QuizResultsScreen(
-            state = QuizUiState(
-                questions = sampleQuestions,
-                userAnswers = mapOf(0 to "4", 1 to "30", 2 to "Paris", 3 to "5", 4 to "8"),
-                score = 60,
+            state = QuizUiState( // Use seu QuizUiState de domain.model
+                questions = previewSampleQuestions,
+                userAnswers = previewUserAnswers,
+                score = previewScore,
                 isFinished = true
+                // Preencha outros campos do QuizUiState conforme necessário para o preview
             ),
             onBackToHome = {}
         )
     }
 }
+
