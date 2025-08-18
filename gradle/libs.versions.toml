@@ -53,6 +53,7 @@ androidx-lifecycle-runtime-compose-android = { group = "androidx.lifecycle", nam
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltAndroid" }
+firebase-firestore-ktx = { module = "com.google.firebase:firebase-firestore-ktx" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
