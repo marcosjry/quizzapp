@@ -33,18 +33,16 @@ fun RegistrationScreen(
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    // Estado para o SnackbarHost
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Efeito para mostrar a Snackbar quando houver uma mensagem de erro
     if (uiState.errorMessage != null) {
-        val currentErrorMessage = uiState.errorMessage // Captura a mensagem atual
+        val currentErrorMessage = uiState.errorMessage
         LaunchedEffect(currentErrorMessage, snackbarHostState) {
             snackbarHostState.showSnackbar(
                 message = currentErrorMessage,
-                duration = SnackbarDuration.Short // Duração aumentada
+                duration = SnackbarDuration.Short
             )
-            onErrorMessageShown() // Limpa a mensagem após a Snackbar ser dispensada
+            onErrorMessageShown()
         }
     }
 
@@ -55,7 +53,7 @@ fun RegistrationScreen(
     }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) }, // Configura o SnackbarHost
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text("Create Account") },
@@ -149,9 +147,6 @@ fun RegistrationScreen(
                     Text("Register")
                 }
             }
-
-            // A exibição antiga da mensagem de erro como Text foi removida daqui.
-            // A Snackbar cuidará disso agora.
         }
     }
 }

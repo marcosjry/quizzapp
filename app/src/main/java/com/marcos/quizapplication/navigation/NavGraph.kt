@@ -1,6 +1,7 @@
 package com.marcos.quizapplication.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -83,6 +84,7 @@ fun NavGraph(navController: NavHostController, startDestination: String) {
         composable(route = Screen.Home.route) {
             val homeViewModel: HomeViewModel = hiltViewModel()
             val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
+            val topPerformers by homeViewModel.topPerformers.collectAsState()
 
             HomeScreen(
                 uiState = uiState,
@@ -98,21 +100,19 @@ fun NavGraph(navController: NavHostController, startDestination: String) {
                 onStartQuizClick = { quizId ->
                     navController.navigate(Screen.Quiz.createRoute(quizId))
                 },
-                onQuizzesErrorMessageShown = homeViewModel::onQuizzesErrorMessageShown
+                onQuizzesErrorMessageShown = homeViewModel::onQuizzesErrorMessageShown,
+                topPerformers = topPerformers
             )
         }
 
         composable(route = Screen.Quiz.route) {
             val quizViewModel: QuizViewModel = hiltViewModel()
-            // Se QuizRoute espera um QuizViewModel e não um uiState diretamente, isso está ok.
-            // Se precisar de uiState, colete-o como nos outros composables.
             QuizRoute(
                 viewModel = quizViewModel,
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateHome = {
                     navController.navigate(Screen.Home.route) {
-                        // Pop até a tela de Quiz para removê-la e Home se tornar o topo
-                        popUpTo(Screen.Quiz.route) { // ou Screen.Quiz.createRoute(it.arguments?.getString("quizId") ?: "")
+                        popUpTo(Screen.Quiz.route) {
                             inclusive = true
                         }
                         launchSingleTop = true

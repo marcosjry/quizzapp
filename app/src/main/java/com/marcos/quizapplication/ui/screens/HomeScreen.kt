@@ -1,5 +1,7 @@
 package com.marcos.quizapplication.ui.screens
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,13 +19,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -41,6 +41,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,14 +57,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.marcos.quizapplication.domain.model.RankedUser
 import com.marcos.quizapplication.model.QuizInfo
 import com.marcos.quizapplication.ui.viewmodel.HomeUiState
+import com.marcos.quizapplication.ui.viewmodel.HomeViewModel
 
 fun Color(hexString: String): Color {
     return try {
         Color(android.graphics.Color.parseColor("#$hexString"))
     } catch (e: IllegalArgumentException) {
-        Color.Gray // Cor padrão em caso de erro
+        Color.Gray
     }
 }
 
@@ -74,33 +78,28 @@ data class Stat(
     val backgroundColor: Color
 )
 
-
-val sampleStats = listOf(
-    Stat(Icons.Default.CheckCircle, "Quizzes Completed", "12", Color(0xFFE0F7FA)),
-    Stat(Icons.Default.TrendingUp, "Accuracy Rate", "78%", Color(0xFFE8F5E9)),
-    Stat(Icons.Default.Schedule, "Average Time", "5m 24s", Color(0xFFFFF3E0))
-)
-
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     uiState: HomeUiState,
     onLogout: () -> Unit,
     onStartQuizClick: (quizId: String) -> Unit,
-    onQuizzesErrorMessageShown: () -> Unit
+    onQuizzesErrorMessageShown: () -> Unit,
+    topPerformers: List<RankedUser> = emptyList()
 ) {
     var showMenu by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     LaunchedEffect(uiState.quizzesErrorMessage) {
-        // ... (código do Toast) ...
+        uiState.quizzesErrorMessage?.let {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            onQuizzesErrorMessageShown()
+        }
     }
 
     Scaffold(
         topBar = {
-            TopAppBar( // <<<--- RESTAURE ESTE BLOCO
+            TopAppBar(
                 title = { Text("QuizMaster", fontWeight = FontWeight.Bold) },
                 actions = {
                     IconButton(onClick = { showMenu = !showMenu }) {
@@ -138,73 +137,84 @@ fun HomeScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF3B82F6), // Exemplo de cor, ajuste conforme necessário
+                    containerColor = Color(0xFF3B82F6),
                     titleContentColor = Color.White,
                     actionIconContentColor = Color.White
                 )
-            ) // <<<--- FIM DO BLOCO TopAppBar
+            )
         }
     ) { paddingValues ->
-        LazyColumn(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "Welcome, ${uiState.userName}!", // Usar uiState.userName
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-
-            // item { // Seção de Stats (se ainda for usar sampleStats)
-            // Text(text = "Your Stats", ...)
-            // sampleStats.forEach { stat -> StatCard(stat = stat) }
-            // }
-
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "Available Quizzes",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            if (uiState.isLoadingQuizzes) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
                 item {
-                    Box(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Welcome, ${uiState.userName}!",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
-            } else if (uiState.quizzes.isEmpty() && uiState.quizzesErrorMessage == null) {
+
                 item {
                     Text(
-                        text = "No quizzes available at the moment. Check back later!",
-                        modifier = Modifier.padding(16.dp),
-                        textAlign = TextAlign.Center
+                        text = "Available Quizzes",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
                     )
                 }
-            } else {
-                items(uiState.quizzes) { quizInfo -> // Iterar sobre uiState.quizzes
-                    QuizCard( // Passar QuizInfo
-                        quizInfo = quizInfo,
-                        onStartClick = { onStartQuizClick(quizInfo.id) } // Usar quizInfo.id
-                    )
-                }
-            }
 
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
+                if (uiState.isLoadingQuizzes) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                } else if (uiState.quizzes.isEmpty() && uiState.quizzesErrorMessage == null) {
+                    item {
+                        Text(
+                            text = "No quizzes available at the moment. Check back later!",
+                            modifier = Modifier.padding(16.dp),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                } else {
+                    items(uiState.quizzes) { quizInfo ->
+                        QuizCard(
+                            quizInfo = quizInfo,
+                            onStartClick = { onStartQuizClick(quizInfo.id) }
+                        )
+                    }
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Text(
+                        text = "Ranking",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    RankingScreen(topPerformers = topPerformers)
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
             }
         }
     }
@@ -244,7 +254,7 @@ fun StatCard(stat: Stat) {
 }
 
 @Composable
-fun QuizCard( // Modificar para aceitar QuizInfo
+fun QuizCard(
     quizInfo: QuizInfo,
     onStartClick: () -> Unit
 ) {
@@ -261,15 +271,15 @@ fun QuizCard( // Modificar para aceitar QuizInfo
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = quizInfo.title, // Usar quizInfo.title
+                    text = quizInfo.title,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = quizInfo.difficulty, // Usar quizInfo.difficulty
+                    text = quizInfo.difficulty,
                     modifier = Modifier
                         .clip(CircleShape)
-                        .background(Color(quizInfo.difficultyColorHex)) // Converter HEX para Color
+                        .background(Color(quizInfo.difficultyColorHex))
                         .padding(horizontal = 12.dp, vertical = 4.dp),
                     fontSize = 12.sp,
                     color = Color.DarkGray
@@ -300,7 +310,6 @@ fun QuizCard( // Modificar para aceitar QuizInfo
 @Composable
 fun HomeScreenPreview() {
     MaterialTheme {
-        // Atualizar o preview para usar HomeUiState e dados de exemplo para QuizInfo
         val previewQuizzes = listOf(
             QuizInfo("1", "Math Preview", "Easy math questions", "5 min", "Easy", "FFC8E6C9"),
             QuizInfo("2", "Science Preview", "Basic science", "10 min", "Medium", "FFFFECB3")

@@ -5,11 +5,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.marcos.quizapplication.domain.contracts.AuthRepository
 import com.marcos.quizapplication.domain.contracts.QuizRepository
+import com.marcos.quizapplication.domain.contracts.RankingRepository
+import com.marcos.quizapplication.domain.model.RankedUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -17,11 +21,15 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val quizRepository: QuizRepository
+    private val quizRepository: QuizRepository,
+    private val rankingRepository: RankingRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState = _uiState.asStateFlow()
+
+    private val _topPerformers = MutableStateFlow<List<RankedUser>>(emptyList())
+    val topPerformers = _topPerformers.asStateFlow()
 
     init {
         authRepository.getAuthState().onEach { authState ->
@@ -31,6 +39,12 @@ class HomeViewModel @Inject constructor(
             }
         }.launchIn(viewModelScope)
         loadAvailableQuizzes()
+
+        rankingRepository.getTopPerformers()
+            .onEach { users ->
+                Log.d("HomeViewModel", "Ranking atualizado: ${users.size} usuários no ranking")
+                _topPerformers.value = users.toList() // Força nova referência da lista
+            }.launchIn(viewModelScope)
     }
 
     fun onLogout() {
