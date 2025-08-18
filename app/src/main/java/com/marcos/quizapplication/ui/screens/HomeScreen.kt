@@ -84,6 +84,7 @@ fun HomeScreen(
     uiState: HomeUiState,
     onLogout: () -> Unit,
     onStartQuizClick: (quizId: String) -> Unit,
+    onNavigateToProfile: () -> Unit,
     onQuizzesErrorMessageShown: () -> Unit,
     topPerformers: List<RankedUser> = emptyList()
 ) {
@@ -112,8 +113,8 @@ fun HomeScreen(
                         DropdownMenuItem(
                             text = { Text("Profile") },
                             onClick = {
-                                // TODO: Implementar Profile
                                 showMenu = false
+                                onNavigateToProfile()
                             },
                             leadingIcon = { Icon(Icons.Default.Person, "Profile") }
                         )
@@ -306,19 +307,26 @@ fun QuizCard(
     }
 }
 
-@Preview(showBackground = true, name = "Home Screen Preview")
 @Composable
-fun HomeScreenPreview() {
-    MaterialTheme {
-        val previewQuizzes = listOf(
-            QuizInfo("1", "Math Preview", "Easy math questions", "5 min", "Easy", "FFC8E6C9"),
-            QuizInfo("2", "Science Preview", "Basic science", "10 min", "Medium", "FFFFECB3")
-        )
-        HomeScreen(
-            uiState = HomeUiState(userName = "John Doe", quizzes = previewQuizzes),
-            onLogout = {},
-            onStartQuizClick = {},
-            onQuizzesErrorMessageShown = {}
-        )
+fun HomeRoute(
+    viewModel: HomeViewModel = hiltViewModel(),
+    onStartQuizClick: (quizId: String) -> Unit,
+    onNavigateToProfile: () -> Unit,
+    onLogout: () -> Unit
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    val topPerformers by viewModel.topPerformers.collectAsState()
+
+    LaunchedEffect(topPerformers) {
+        Log.d("HomeRoute", "HomeRoute recebeu: ${topPerformers.size} usuários")
     }
+
+    HomeScreen(
+        uiState = uiState,
+        onLogout = onLogout,
+        onStartQuizClick = onStartQuizClick,
+        onQuizzesErrorMessageShown = viewModel::onQuizzesErrorMessageShown,
+        topPerformers = topPerformers,
+        onNavigateToProfile = onNavigateToProfile,
+    )
 }
