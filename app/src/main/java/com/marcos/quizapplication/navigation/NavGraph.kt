@@ -10,16 +10,19 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.marcos.quizapplication.ui.screens.HomeScreen
 import com.marcos.quizapplication.ui.screens.LoginScreen
+import com.marcos.quizapplication.ui.screens.ProfileScreen
 import com.marcos.quizapplication.ui.screens.QuizRoute
 import com.marcos.quizapplication.ui.screens.RegistrationScreen
 import com.marcos.quizapplication.ui.viewmodel.HomeViewModel
 import com.marcos.quizapplication.ui.viewmodel.LoginViewModel
+import com.marcos.quizapplication.ui.viewmodel.ProfileViewModel
 import com.marcos.quizapplication.ui.viewmodel.QuizViewModel
 import com.marcos.quizapplication.ui.viewmodel.RegistrationViewModel
 
 sealed class Screen(val route: String) {
     object Login : Screen("login_screen")
     object Home : Screen("home_screen")
+    object Profile : Screen("profile_screen")
     object Quiz : Screen("quiz_screen/{quizId}") {
         fun createRoute(quizId: String) = "quiz_screen/$quizId"
     }
@@ -101,7 +104,10 @@ fun NavGraph(navController: NavHostController, startDestination: String) {
                     navController.navigate(Screen.Quiz.createRoute(quizId))
                 },
                 onQuizzesErrorMessageShown = homeViewModel::onQuizzesErrorMessageShown,
-                topPerformers = topPerformers
+                topPerformers = topPerformers,
+                onNavigateToProfile = {
+                    navController.navigate(Screen.Profile.route)
+                }
             )
         }
 
@@ -118,6 +124,16 @@ fun NavGraph(navController: NavHostController, startDestination: String) {
                         launchSingleTop = true
                     }
                 }
+            )
+        }
+
+        composable(route = Screen.Profile.route) {
+            val profileViewModel: ProfileViewModel = hiltViewModel()
+            val uiState by profileViewModel.uiState.collectAsStateWithLifecycle()
+
+            ProfileScreen(
+                uiState = uiState,
+                onNavigateBack = { navController.popBackStack() }
             )
         }
     }
