@@ -22,8 +22,6 @@ class FirestoreQuizRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getAvailableQuizzes(): Result<List<QuizInfo>> {
-        // ... seu código existente ...
-        // Adicione logs aqui também, se ainda não tiver
         return try {
             val snapshot = firestore.collection(QUIZZES_COLLECTION).get().await()
             val quizzes = snapshot.documents.mapNotNull { document ->
@@ -48,11 +46,11 @@ class FirestoreQuizRepositoryImpl @Inject constructor(
         Log.d(TAG, "Fetching questions for quizId: $quizId")
         if (quizId.isBlank()) {
             Log.w(TAG, "quizId is blank. Returning empty list.")
-            return Result.success(emptyList()) // Ou Result.failure com um erro apropriado
+            return Result.success(emptyList())
         }
         return try {
             val snapshot = firestore.collection(QUIZZES_COLLECTION)
-                .document(quizId) // Especifica o documento do quiz
+                .document(quizId)
                 .collection(QUESTIONS_SUBCOLLECTION) // Acessa a subcoleção de perguntas
                 .get()
                 .await()
@@ -70,6 +68,32 @@ class FirestoreQuizRepositoryImpl @Inject constructor(
             Result.success(questions)
         } catch (e: Exception) {
             Log.e(TAG, "Error fetching questions for quizId $quizId", e)
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getQuizInfo(quizId: String): Result<QuizInfo> {
+        return try {
+            val documentSnapshot = firestore.collection(QUIZZES_COLLECTION)
+                .document(quizId)
+                .get()
+                .await()
+
+            if (documentSnapshot.exists()) {
+                val quizInfo = QuizInfo(
+                    id = documentSnapshot.id,
+                    title = documentSnapshot.getString("title") ?: "",
+                    description = documentSnapshot.getString("description") ?: "",
+                    time = documentSnapshot.getString("time") ?: "",
+                    difficulty = documentSnapshot.getString("difficulty") ?: "",
+                    difficultyColorHex = documentSnapshot.getString("difficultyColor") ?: "FFFFFFFF"
+                )
+                Result.success(quizInfo)
+            } else {
+                Result.failure(IllegalStateException("Quiz não encontrado"))
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error fetching quiz info for quizId $quizId", e)
             Result.failure(e)
         }
     }
