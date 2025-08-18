@@ -41,14 +41,16 @@ class FirebaseAuthRepositoryImpl(
                     }
                     .addOnFailureListener { e ->
                         Log.w("FirebaseAuthRepo", "Error fetching user details from Firestore", e)
+                        // Still update with auth user, but username might be missing
                         _authState.update {
                             it.copy(
-                                user = firebaseUser.toDomainUser(null),
+                                user = firebaseUser.toDomainUser(null), // Username fetch failed
                                 isInitialLoading = false
                             )
                         }
                     }
             } else {
+                // User is signed out
                 _authState.update {
                     it.copy(
                         user = null,
@@ -77,14 +79,29 @@ class FirebaseAuthRepositoryImpl(
             val createdFirebaseUser = authResult.user
 
             if (createdFirebaseUser != null) {
+                // Documento principal do usuário
                 val userDocument = mapOf(
                     "uid" to createdFirebaseUser.uid,
                     "username" to username,
                     "email" to email
                 )
-                firestore.collection("users").document(createdFirebaseUser.uid)
-                    .set(userDocument)
-                    .await()
+
+                // Documento do ranking do usuário (inicializado com pontuação zero)
+                val rankingDocument = mapOf(
+                    "displayName" to username,
+                    "totalPoints" to 0,
+                    "uid" to createdFirebaseUser.uid
+                )
+
+                val batch = firestore.batch()
+
+                val userRef = firestore.collection("users").document(createdFirebaseUser.uid)
+                batch.set(userRef, userDocument)
+
+                val rankRef = firestore.collection("rankings").document(createdFirebaseUser.uid)
+                batch.set(rankRef, rankingDocument)
+
+                batch.commit().await()
 
                 _authState.update {
                     it.copy(
@@ -122,7 +139,6 @@ class FirebaseAuthRepositoryImpl(
         firebaseAuth.signOut()
     }
 }
-
 
 private fun FirebaseUser.toDomainUser(usernameFromFirestore: String?): com.marcos.quizapplication.domain.model.User {
     return com.marcos.quizapplication.domain.model.User(

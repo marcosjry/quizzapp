@@ -6,4 +6,5 @@ import com.marcos.quizapplication.model.QuizInfo
 interface QuizRepository {
     suspend fun getAvailableQuizzes(): Result<List<QuizInfo>>
     suspend fun getQuestionsForQuiz(quizId: String): Result<List<Question>>
+    suspend fun getQuizInfo(quizId: String): Result<QuizInfo>
 }

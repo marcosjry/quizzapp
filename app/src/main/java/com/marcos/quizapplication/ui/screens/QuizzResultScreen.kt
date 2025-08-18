@@ -126,7 +126,7 @@ fun QuizResultsScreen(
             PerformanceDetailCard(
                 icon = Icons.Default.Schedule,
                 label = "Time Spent",
-                value = "0m 7s", // TODO: Implementar timer
+                value = state.formatElapsedTime(), // Usando a função formatElapsedTime
                 backgroundColor = Color(0xFFE3F2FD),
                 iconColor = Color(0xFF2196F3)
             )
@@ -177,12 +177,12 @@ fun PerformanceDetailCard(
 @Preview(showBackground = true)
 @Composable
 fun QuizResultsScreenPreview() {
-    // Crie dados de exemplo aqui, usando o construtor correto de com.marcos.quizapplication.model.Question
+
     val previewSampleQuestions = listOf(
         Question(id = "q1", text = "What is 2 + 2?", options = listOf("3", "4", "5", "6"), correctAnswer = "4"),
         Question(id = "q2", text = "What is 5 x 7?", options = listOf("30", "35", "40", "45"), correctAnswer = "35"),
         Question(id = "q3", text = "Capital of France?", options = listOf("London", "Paris"), correctAnswer = "Paris")
-        // ... mais perguntas de exemplo
+
     )
     val previewUserAnswers = mapOf(0 to "4", 1 to "30", 2 to "London") // Exemplo de respostas
     val totalQuestions = previewSampleQuestions.size
@@ -198,7 +198,6 @@ fun QuizResultsScreenPreview() {
                 userAnswers = previewUserAnswers,
                 score = previewScore,
                 isFinished = true
-                // Preencha outros campos do QuizUiState conforme necessário para o preview
             ),
             onBackToHome = {}
         )

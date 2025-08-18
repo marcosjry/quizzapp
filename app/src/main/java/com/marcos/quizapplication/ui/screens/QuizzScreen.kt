@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,7 +26,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -101,6 +101,12 @@ private fun QuizScreen(
                     questionNumber = uiState.currentQuestionIndex + 1,
                     totalQuestions = uiState.questions.size
                 )
+
+                TimerDisplay(
+                    timeRemaining = uiState.formatTime(),
+                    progress = uiState.timeProgress
+                )
+
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
@@ -125,9 +131,6 @@ private fun QuizScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    OutlinedButton(onClick = { /* TODO: Skip logic */ }) {
-                        Text("Skip")
-                    }
                     Button(
                         onClick = onNextClicked,
                         enabled = uiState.selectedAnswer != null
@@ -142,6 +145,49 @@ private fun QuizScreen(
                 CircularProgressIndicator()
             }
         }
+    }
+}
+
+@Composable
+fun TimerDisplay(timeRemaining: String, progress: Float) {
+    val timerColor = when {
+        progress < 0.25f -> Color.Red
+        progress < 0.5f -> Color(0xFFFF9800) // Laranja
+        else -> MaterialTheme.colorScheme.primary
+    }
+
+    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.Schedule,
+                    contentDescription = "Timer",
+                    tint = timerColor
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = timeRemaining,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = timerColor,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        LinearProgressIndicator(
+            progress = { progress },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(4.dp)
+                .clip(RoundedCornerShape(2.dp)),
+            color = timerColor
+        )
     }
 }
 

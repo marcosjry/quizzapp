@@ -3,9 +3,11 @@ package com.marcos.quizapplication.di
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.marcos.quizapplication.data.repository.FirestoreQuizRepositoryImpl
+import com.marcos.quizapplication.data.repository.FirestoreRankingRepositoryImpl
 import com.marcos.quizapplication.data.repository.authentication.FirebaseAuthRepositoryImpl
 import com.marcos.quizapplication.domain.contracts.AuthRepository
 import com.marcos.quizapplication.domain.contracts.QuizRepository
+import com.marcos.quizapplication.domain.contracts.RankingRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -37,5 +39,11 @@ object AuthModule {
     @Singleton
     fun provideQuizRepository(firestore: FirebaseFirestore): QuizRepository {
         return FirestoreQuizRepositoryImpl(firestore)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRankingRepository(firestore: FirebaseFirestore): RankingRepository {
+        return FirestoreRankingRepositoryImpl(firestore)
     }
 }
