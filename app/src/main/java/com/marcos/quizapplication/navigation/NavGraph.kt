@@ -85,7 +85,7 @@ fun NavGraph(navController: NavHostController, startDestination: String) {
             val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
 
             HomeScreen(
-                userName = uiState.userName,
+                uiState = uiState,
                 onLogout = {
                     homeViewModel.onLogout()
                     navController.navigate(Screen.Login.route) {
@@ -97,18 +97,22 @@ fun NavGraph(navController: NavHostController, startDestination: String) {
                 },
                 onStartQuizClick = { quizId ->
                     navController.navigate(Screen.Quiz.createRoute(quizId))
-                }
+                },
+                onQuizzesErrorMessageShown = homeViewModel::onQuizzesErrorMessageShown
             )
         }
 
         composable(route = Screen.Quiz.route) {
             val quizViewModel: QuizViewModel = hiltViewModel()
+            // Se QuizRoute espera um QuizViewModel e não um uiState diretamente, isso está ok.
+            // Se precisar de uiState, colete-o como nos outros composables.
             QuizRoute(
                 viewModel = quizViewModel,
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateHome = {
                     navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.Quiz.route) {
+                        // Pop até a tela de Quiz para removê-la e Home se tornar o topo
+                        popUpTo(Screen.Quiz.route) { // ou Screen.Quiz.createRoute(it.arguments?.getString("quizId") ?: "")
                             inclusive = true
                         }
                         launchSingleTop = true

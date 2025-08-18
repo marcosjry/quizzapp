@@ -1,4 +1,4 @@
-package com.marcos.quizapplication.authentication
+package com.marcos.quizapplication.data.repository.authentication
 
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
@@ -63,7 +63,6 @@ class FirebaseAuthRepositoryImpl(
 
     override suspend fun signUp(username: String, email: String, password: String): Result<Unit> {
         return try {
-            // Verifica se o nome de usuário é único no firestore
             val usernameQuery = firestore.collection("users")
                 .whereEqualTo("username", username)
                 .get()

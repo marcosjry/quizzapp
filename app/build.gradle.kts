@@ -50,6 +50,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.firebase.firestore.ktx)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
