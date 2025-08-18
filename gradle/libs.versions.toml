@@ -2,7 +2,7 @@
 agp = "8.6.0"
 googleServices = "4.4.1"
 hiltAndroid = "2.51.1"
-ksp = "2.0.0-1.0.24"
+ksp = "2.0.20-1.0.24"
 firebaseBom = "32.8.1"
 koinAndroid = "3.5.3"
 kotlin = "2.0.20"
@@ -20,6 +20,7 @@ material = "1.12.0"
 lifecycleRuntimeComposeAndroid = "2.9.2"
 coreSplashscreen = "1.0.1"
 hiltNavigationCompose = "1.2.0"
+coil = "2.7.0"
 
 [libraries]
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
@@ -54,6 +55,8 @@ androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscree
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltAndroid" }
 firebase-firestore-ktx = { module = "com.google.firebase:firebase-firestore-ktx" }
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

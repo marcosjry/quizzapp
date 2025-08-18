@@ -51,8 +51,10 @@ android {
 
 dependencies {
     implementation(libs.firebase.firestore.ktx)
+    implementation(libs.coil.compose)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
+    implementation(libs.firebase.storage.ktx)
     kapt(libs.hilt.compiler)
     implementation(libs.constraintlayout)
     implementation(libs.firebase.auth)
