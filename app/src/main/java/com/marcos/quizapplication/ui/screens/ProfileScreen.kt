@@ -66,7 +66,7 @@ fun ProfileScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Perfil do Usuário") },
+                title = { Text("User Profile") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
@@ -122,7 +122,7 @@ fun ProfileScreen(
 
                 item {
                     Text(
-                        text = "Estatísticas",
+                        text = "Statistics",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -133,7 +133,7 @@ fun ProfileScreen(
                 item {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Histórico de Quizzes",
+                        text = "Quiz History",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -155,7 +155,7 @@ fun ProfileScreen(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = "Você ainda não realizou nenhum quiz",
+                                    text = "You haven't taken any quizzes yet",
                                     textAlign = TextAlign.Center,
                                     color = Color.Gray
                                 )
@@ -217,7 +217,7 @@ fun UserStatsSection(stats: UserStats) {
         ) {
             StatRow(
                 icon = Icons.Default.StickyNote2,
-                label = "Quizzes realizados",
+                label = "Quiz Taken",
                 value = "${stats.totalQuizzes}",
                 color = Color(0xFF3B82F6)
             )
@@ -226,7 +226,7 @@ fun UserStatsSection(stats: UserStats) {
 
             StatRow(
                 icon = Icons.Default.Star,
-                label = "Taxa de acerto",
+                label = "Assurance",
                 value = String.format("%.1f%%", stats.averageScore),
                 color = Color(0xFFEAB308)
             )
@@ -235,7 +235,7 @@ fun UserStatsSection(stats: UserStats) {
 
             StatRow(
                 icon = Icons.Default.CheckCircle,
-                label = "Total de respostas corretas",
+                label = "Total Correct answers",
                 value = "${stats.totalCorrectAnswers} / ${stats.totalQuestions}",
                 color = Color(0xFF22C55E)
             )
@@ -244,7 +244,7 @@ fun UserStatsSection(stats: UserStats) {
 
             StatRow(
                 icon = Icons.Default.Schedule,
-                label = "Tempo médio por quiz",
+                label = "Average time per quiz",
                 value = formatTime(stats.averageTimePerQuizInSeconds),
                 color = Color(0xFFEF4444)
             )
@@ -310,7 +310,7 @@ fun QuizAttemptCard(attempt: QuizAttempt) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Pontuação: ${attempt.correctAnswers}/${attempt.totalQuestions}",
+                    text = "Points: ${attempt.correctAnswers}/${attempt.totalQuestions}",
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Text(
@@ -327,7 +327,7 @@ fun QuizAttemptCard(attempt: QuizAttempt) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Tempo: ${formatTime(attempt.timeSpentInSeconds.toFloat())}",
+                    text = "Spent Time: ${formatTime(attempt.timeSpentInSeconds.toFloat())}",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )
