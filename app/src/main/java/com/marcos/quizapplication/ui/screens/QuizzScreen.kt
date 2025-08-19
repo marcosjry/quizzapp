@@ -80,7 +80,7 @@ private fun QuizScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Mathematics Basics") },
+                title = { Text(text = uiState.quizTitle) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
