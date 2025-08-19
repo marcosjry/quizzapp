@@ -137,11 +137,6 @@ fun QuizResultsScreen(
                 OutlinedButton(onClick = onBackToHome, modifier = Modifier.weight(1f)) {
                     Text("Back to Home")
                 }
-                Button(onClick = { /*TODO*/ }, modifier = Modifier.weight(1f)) {
-                    Icon(Icons.Default.BarChart, contentDescription = null, modifier = Modifier.size(20.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("View Statistics")
-                }
             }
         }
     }

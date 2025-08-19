@@ -118,14 +118,6 @@ fun HomeScreen(
                             },
                             leadingIcon = { Icon(Icons.Default.Person, "Profile") }
                         )
-                        DropdownMenuItem(
-                            text = { Text("Settings") },
-                            onClick = {
-                                // TODO: Implementar Settings
-                                showMenu = false
-                            },
-                            leadingIcon = { Icon(Icons.Default.Settings, "Settings") }
-                        )
                         HorizontalDivider()
                         DropdownMenuItem(
                             text = { Text("Logout") },
